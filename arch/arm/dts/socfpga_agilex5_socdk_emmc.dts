@@ -18,6 +18,7 @@
 };
 
 &mmc {
+	/delete-property/ sd-uhs-sdr50;
 	/delete-property/ sd-uhs-sdr104;
 	status = "okay";
 
@@ -32,8 +33,8 @@
 	vmmc-supply = <&sd_emmc_power>;
 	vqmmc-supply = <&emmc_io_1v8_reg>;
 	max-frequency = <200000000>;
-	sdhci-caps-mask = <0x00000000 0x00040000>;
-	sdhci-caps = <0x0 0x040000>;	/* SDHCI_CAN_DO_8BIT */
+	sdhci-caps = <0x00000000 0x0004c800>;	/* SDHCI_CAN_DO_8BIT */
+	sdhci-caps-mask = <0x00000000 0x0004ff00>;
 
 	/* eMMC legacy mode timing configuration */
 	cdns,phy-dqs-timing-delay-sd-ds = <0x00780000>;

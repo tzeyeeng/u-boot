@@ -329,7 +329,6 @@
 			clocks = <&clkmgr AGILEX5_L4_MP_CLK>,
 				 <&clkmgr AGILEX5_SDMMC_CLK>;
 			clock-names = "biu", "ciu";
-			fifo-depth = <0x800>;
 			iommus = <&smmu 5>;
 			status = "disabled";
 		};
@@ -533,6 +532,7 @@
 			reg = <0x10d00300 0x100>;
 			interrupts = <0 118 4>;
 			resets = <&rst WATCHDOG1_RESET>;
+			u-boot,noautostart;
 			clocks = <&clkmgr AGILEX5_L4_SYS_FREE_CLK>;
 			status = "disabled";
 		};
@@ -542,6 +542,7 @@
 			reg = <0x10d00400 0x100>;
 			interrupts = <0 125 4>;
 			resets = <&rst WATCHDOG2_RESET>;
+			u-boot,noautostart;
 			clocks = <&clkmgr AGILEX5_L4_SYS_FREE_CLK>;
 			status = "disabled";
 		};
@@ -551,6 +552,7 @@
 			reg = <0x10d00500 0x100>;
 			interrupts = <0 126 4>;
 			resets = <&rst WATCHDOG3_RESET>;
+			u-boot,noautostart;
 			clocks = <&clkmgr AGILEX5_L4_SYS_FREE_CLK>;
 			status = "disabled";
 		};
@@ -560,6 +562,7 @@
 			reg = <0x10d00600 0x100>;
 			interrupts = <0 175 4>;
 			resets = <&rst WATCHDOG4_RESET>;
+			u-boot,noautostart;
 			clocks = <&clkmgr AGILEX5_L4_SYS_FREE_CLK>;
 			status = "disabled";
 		};

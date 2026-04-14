@@ -363,7 +363,7 @@ static void sdram_set_firewall_f2sdram(struct bd_info *bd)
 		 * using ATF flow, where the ATF code is located.
 		 */
 		if (IS_ENABLED(CONFIG_SPL_ATF) && i == 0)
-			value += SZ_1M;
+			//value += SZ_1M;
 
 		/* Setting base and base extended */
 		lower = lower_32_bits(value);

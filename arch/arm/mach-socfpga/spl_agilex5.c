@@ -11,6 +11,7 @@
 #include <spl.h>
 #include <asm/arch/base_addr_soc64.h>
 #include <asm/arch/clock_manager.h>
+#include <asm/arch/firewall.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
@@ -106,6 +107,13 @@ void board_init_f(ulong dummy)
 			hang();
 		}
 	}
+
+	/*
+	 * Set secure transaction for mmc, so ATF image from mmc can be loaded
+	 * to secure region reserved for ATF in DDR.
+	 */
+	//if (IS_ENABLED(CONFIG_SPL_MMC))
+	//	writel(SECURE_TRANS_SET, SECURE_TRANS_REG);
 
 	if (IS_ENABLED(CONFIG_CADENCE_QSPI))
 		mbox_qspi_open();

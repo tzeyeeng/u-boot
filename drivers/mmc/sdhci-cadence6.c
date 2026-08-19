@@ -58,6 +58,10 @@
 #define PHY_DLL_SLAVE_CTRL_REG_READ_DQS_CMD_DELAY	GENMASK(31, 24)
 #define PHY_DLL_SLAVE_CTRL_REG_READ_DQS_DELAY		GENMASK(7, 0)
 
+/* PHY control/status register */
+#define SDHCI_CDNS6_PHY_CTRL_REG	0x2080
+#define   SDHCI_CDNS6_PHY_CTRL_PHONY_DQS_TIMING	GENMASK(9, 4)
+
 struct sdhci_cdns6_phy_cfg {
 	const char *property;
 	u32 val;
@@ -229,7 +233,8 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 	const struct sdhci_cdns6_ctrl_cfg *ctrl_defaults;
 	struct sdhci_cdns6_phy_cfg phy_cfgs[SDHCI_CDNS6_PHY_CFG_NUM];
 	struct sdhci_cdns6_ctrl_cfg ctrl_cfgs[SDHCI_CDNS6_CTRL_CFG_NUM];
-	u32 tmp;
+	u32 tmp, phony_dqs_timing;
+	bool is_ddr = false;
 	int i, ret;
 
 	switch (mode) {
@@ -256,6 +261,7 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 	case MMC_DDR_52:
 		phy_defaults = emmc_ddr_phy_cfgs;
 		ctrl_defaults = emmc_ddr_ctrl_cfgs;
+		is_ddr = true;
 		break;
 
 	case UHS_SDR104:
@@ -298,6 +304,25 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 				  phy_cfgs[SDHCI_CDNS6_PHY_CFG_DLL_MASTER_CTRL].val);
 	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_SLAVE_CTRL_REG_ADDR,
 				  phy_cfgs[SDHCI_CDNS6_PHY_CFG_DLL_SLAVE_CTRL].val);
+	/*
+	 * Leave PHY_CTRL at its reset value in every mode except DDR; the
+	 * reset value already works for the SD/eMMC SDR and HS modes. The
+	 * phony-DQS assertion timing (PHY_CTRL[9:4]) only needs tuning on the
+	 * DDR read path, so program it for DDR50/DDR52: default it to 0 and
+	 * let a board whose read path needs a different value override it via
+	 * cdns,ddr-phony-dqs-timing.
+	 */
+	if (is_ddr) {
+		phony_dqs_timing = 0;
+		dev_read_u32(dev, "cdns,ddr-phony-dqs-timing",
+			     &phony_dqs_timing);
+
+		tmp = sdhci_cdns6_read_phy_reg(plat, SDHCI_CDNS6_PHY_CTRL_REG);
+		tmp &= ~SDHCI_CDNS6_PHY_CTRL_PHONY_DQS_TIMING;
+		tmp |= FIELD_PREP(SDHCI_CDNS6_PHY_CTRL_PHONY_DQS_TIMING,
+				  phony_dqs_timing);
+		sdhci_cdns6_write_phy_reg(plat, SDHCI_CDNS6_PHY_CTRL_REG, tmp);
+	}
 
 	/* Switch Off the DLL Reset */
 	ret = sdhci_cdns6_reset_phy_dll(plat, false);
